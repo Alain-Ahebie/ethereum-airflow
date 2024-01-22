@@ -4,6 +4,15 @@ provider "google-beta" {
   region  = "us-central1"
 }
 
+# Create a Bucket named "evm_bucket"
+resource "google_storage_bucket" "evm_bucket" {
+  project = "plomber"
+  name          = "evm_bucket"
+  location      = "US"
+  storage_class = "STANDARD"
+  force_destroy = true  # Allows deletion of bucket with contents
+
+}
 
 # Create a BigQuery dataset named "eth-data"
 resource "google_bigquery_dataset" "eth_data" {
