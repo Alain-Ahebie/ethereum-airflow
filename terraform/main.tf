@@ -1,4 +1,5 @@
 provider "google-beta" {
+  # credentials = file("<PATH_TO_SERVICE_ACCOUNT_KEY.json>") 
   project = "plomber"
   region  = "us-central1"
 }
