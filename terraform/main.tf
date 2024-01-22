@@ -53,6 +53,7 @@ resource "google_bigquery_table" "evm_transactions" {
 # For information about validating this Terraform code, see https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/google-cloud-platform-build#format-and-validate-the-configuration
 
 resource "google_compute_instance" "eth-collect" {
+   project = "plomber"
   boot_disk {
     auto_delete = true
     device_name = "eth-collect"
@@ -108,17 +109,30 @@ resource "google_compute_instance" "eth-collect" {
   tags = ["http-server", "https-server", "lb-health-check"]
   zone = "us-central1-c"
 
+  depends_on = [google_os_login_ssh_public_key.default]
+
   provisioner "remote-exec" {
-    inline = [
-      "mkdir -p /home/alaingcp2023/python"
-    ]
+  inline = [
+    "mkdir -p /home/alaingcp2023/python"
+  ]
   }
 
   connection {
-    type        = "ssh"
-    user        = "alaingcp2023"  # The username associated with your SSH key
-    private_key = file("/home/alaingcp2023/.ssh/my-ssh-key")  # Path to your generated private key
-    host        = self.network_interface[0].access_config[0].nat_ip
+  type        = "ssh"
+  user        = "alaingcp2023"
+  private_key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/ssh-key")
+  host        = self.network_interface[0].access_config[0].nat_ip
   }
 
+
+}
+
+
+data "google_client_openid_userinfo" "me" {
+}
+
+resource "google_os_login_ssh_public_key" "default" {
+  user = data.google_client_openid_userinfo.me.email
+  key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/ssh-key.pub")
+  # Path to your public key
 }
