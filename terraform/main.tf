@@ -53,7 +53,7 @@ resource "google_bigquery_table" "evm_transactions" {
 # For information about validating this Terraform code, see https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/google-cloud-platform-build#format-and-validate-the-configuration
 
 resource "google_compute_instance" "eth-collect" {
-   project = "plomber"
+    project = "plomber"
   boot_disk {
     auto_delete = true
     device_name = "eth-collect"
@@ -108,6 +108,10 @@ resource "google_compute_instance" "eth-collect" {
 
   tags = ["http-server", "https-server", "lb-health-check"]
   zone = "us-central1-c"
+
+  metadata = {
+  "enable-oslogin" = "TRUE"
+  }
 
   depends_on = [google_os_login_ssh_public_key.default]
 
