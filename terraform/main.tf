@@ -124,7 +124,7 @@ resource "google_compute_instance" "eth-collect" {
   connection {
   type        = "ssh"
   user        = "alaingcp2023"
-  private_key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/ssh-key")
+  private_key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key")
   host        = self.network_interface[0].access_config[0].nat_ip
   }
 
@@ -137,6 +137,6 @@ data "google_client_openid_userinfo" "me" {
 
 resource "google_os_login_ssh_public_key" "default" {
   user = data.google_client_openid_userinfo.me.email
-  key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/ssh-key.pub")
+  key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key.pub")
   # Path to your public key
 }
