@@ -117,13 +117,14 @@ resource "google_compute_instance" "eth-collect" {
 
   provisioner "remote-exec" {
   inline = [
-    "mkdir -p /home/alaingcp2023/python"
+    "sudo mkdir -p /home/alaingcp2023_gmail_com/python",
+    "sudo mkdir -p /home/alaingcp2023_gmail_com/utils",
   ]
   }
 
   connection {
   type        = "ssh"
-  user        = "alaingcp2023"
+  user        = "alaingcp2023_gmail_com"
   private_key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key")
   host        = self.network_interface[0].access_config[0].nat_ip
   }
@@ -136,6 +137,7 @@ data "google_client_openid_userinfo" "me" {
 }
 
 resource "google_os_login_ssh_public_key" "default" {
+  project = "plomber"
   user = data.google_client_openid_userinfo.me.email
   key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key.pub")
   # Path to your public key
