@@ -115,19 +115,19 @@ resource "google_compute_instance" "eth-collect" {
 
   depends_on = [google_os_login_ssh_public_key.default]
 
-  provisioner "remote-exec" {
-  inline = [
-    "sudo mkdir -p /home/alaingcp2023_gmail_com/python",
-    "sudo mkdir -p /home/alaingcp2023_gmail_com/utils",
-  ]
-  }
+  # provisioner "remote-exec" {
+  # inline = [
+  #   "sudo mkdir -p /home/alaingcp2023_gmail_com/python",
+  #   "sudo mkdir -p /home/alaingcp2023_gmail_com/utils",
+  # ]
+  # }
 
-  connection {
-  type        = "ssh"
-  user        = "alaingcp2023_gmail_com"
-  private_key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key")
-  host        = self.network_interface[0].access_config[0].nat_ip
-  }
+  # connection {
+  # type        = "ssh"
+  # user        = "alaingcp2023_gmail_com"
+  # private_key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key")
+  # host        = self.network_interface[0].access_config[0].nat_ip
+  # }
 
 
 }
