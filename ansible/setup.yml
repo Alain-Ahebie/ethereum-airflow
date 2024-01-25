@@ -26,19 +26,17 @@
         path: "/home/alaingcp2023_gmail_com/{{ item }}"
         state: directory
       loop:
-        - dir1
-        - dir2
-        - dir3
-        - dir4
-        - dir5
+        - project
+        - utils
+        - pgk
 
-    - name: Setup a Python virtual environment in 'myenv' directory
-      command: python3 -m venv /home/alaingcp2023_gmail_com/myenv
+    - name: Setup a Python virtual environment in 'evm' directory
+      command: python3 -m venv /home/alaingcp2023_gmail_com/evm
       tags: [python, venv]
 
     - name: Install Python packages within the virtual environment
       pip:
-        name: [pandas, matplotlib]
-        virtualenv: /home/alaingcp2023_gmail_com/myenv
+        name: [pandas, matplotlib, web3]
+        virtualenv: /home/alaingcp2023_gmail_com/evm
         virtualenv_command: python3 -m venv
       tags: [python, venv]
