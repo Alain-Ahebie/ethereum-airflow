@@ -36,7 +36,7 @@
 
     - name: Install Python packages within the virtual environment
       pip:
-        name: [pandas, matplotlib, web3]
+        name: [pandas, matplotlib, web3, requests, eth-brownie, py-solc-x, sqlalchemy]
         virtualenv: /home/alaingcp2023_gmail_com/evm
         virtualenv_command: python3 -m venv
       tags: [python, venv]
