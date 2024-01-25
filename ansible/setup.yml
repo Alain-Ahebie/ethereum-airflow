@@ -1,0 +1,44 @@
+- hosts: myserver
+  become: yes
+
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: 'yes'
+      tags: [always]
+
+    - name: Install necessary packages for Python and virtual environments
+      apt:
+        name: 
+          - python3
+          - python3-pip
+          - python3-venv
+          - build-essential
+          - libssl-dev
+          - libffi-dev
+          - python3-dev
+        state: present
+      tags: [python, setup]
+
+    - name: Create directories
+      file:
+        path: "/home/alaingcp2023_gmail_com/{{ item }}"
+        state: directory
+      loop:
+        - dir1
+        - dir2
+        - dir3
+        - dir4
+        - dir5
+
+    - name: Setup a Python virtual environment in 'myenv' directory
+      command: python3 -m venv /home/alaingcp2023_gmail_com/myenv
+      tags: [python, venv]
+
+    - name: Install Python packages within the virtual environment
+      pip:
+        name: [pandas, matplotlib]
+        virtualenv: /home/alaingcp2023_gmail_com/myenv
+        virtualenv_command: python3 -m venv
+      tags: [python, venv]
