@@ -2,3 +2,7 @@
 terraform.*
 *ssh-key*
 evm
+chain
+chain\bin
+chain\include
+chain\lib
