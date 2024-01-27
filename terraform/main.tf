@@ -113,7 +113,7 @@ resource "google_compute_instance" "eth-collect" {
   "enable-oslogin" = "TRUE"
   }
 
-  depends_on = [google_os_login_ssh_public_key.default]
+  # depends_on = [google_os_login_ssh_public_key.default]
 
   # provisioner "remote-exec" {
   # inline = [
