@@ -17,7 +17,7 @@ def connect_to_ethereum_node(url):
     
 def get_block_one_hour_ago(web3, latest_block):
     # Finds the block number that was closest to one hour ago
-    one_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=1)
+    one_hour_ago = datetime.datetime.now() - datetime.timedelta(minutes=2)
     block_number = latest_block
     while True:
         try:
@@ -33,9 +33,49 @@ def get_block_one_hour_ago(web3, latest_block):
     print("block_number", block_number)    
     return block_number
 
+def get_transactions(web3, start_block, end_block):
+    # Retrieves transactions between the specified start and end blocks
+    transactions = []
+    for block_number in range(start_block, end_block + 1):
+        try:
+            block = web3.eth.get_block(block_number, full_transactions=True)
+            for tx in block.transactions:
+                receipt = web3.eth.get_transaction_receipt(tx.hash)
+                transactions.append({
+                    "Hash": tx.hash.hex(),  # Unique identifier of the transaction
+                    "From": tx['from'],  # Sender's Ethereum address
+                    "To": tx.to,  # Recipient's Ethereum address (None for contract creations)
+                    "Value": web3.from_wei(tx.value, 'ether'),  # Amount of Ether transferred
+                    "GasPrice": web3.from_wei(tx.gasPrice, 'gwei'),  # Gas price per unit in Gwei
+                    "GasLimit": tx.gas,  # Maximum gas provided by the sender
+                    "GasUsed": receipt.gasUsed,  # Total gas used in the transaction
+                    "TransactionFee": web3.from_wei(receipt.gasUsed * tx.gasPrice, 'ether'),  # Total transaction fee
+                    "Nonce": tx.nonce,  # Sequence number issued by the sender
+                    "BlockNumber": tx.blockNumber,  # Block number containing the transaction
+                    "BlockHash": tx.blockHash.hex(),  # Hash of the block containing the transaction
+                    "BlockTimestamp": datetime.datetime.fromtimestamp(block.timestamp),  # Time when the block was mined
+                    "TransactionIndex": tx.transactionIndex,  # Transaction's index position in the block
+                    "CumulativeGasUsed": receipt.cumulativeGasUsed,  # Cumulative gas used in the block up to this transaction
+                    "Logs": [log for log in receipt.logs],  # Event logs emitted by this transaction
+                    "LogsBloom": receipt.logsBloom.hex(),  # Bloom filter for light clients
+                    "Status": receipt.status,  # Status of the transaction (1 = success, 0 = failure)
+                    "ContractAddress": receipt.contractAddress if receipt.contractAddress else None,  # Contract address created, if any
+                    "Root": receipt.root if 'root' in receipt else None,  # State root after the transaction (pre-Byzantium forks)
+                    "IsError": 0 if receipt.status == 1 else 1  # Flag indicating if the transaction was erroneous
+                })
+                print(transactions)
+        except Web3Exception as e:
+            print(f"An error occurred while processing block {block_number}: {str(e)}")
+    return transactions
+
+def save_to_parquet(data, filename):
+    # Saves the transaction data to a Parquet file
+    df = pd.DataFrame(data)
+    df.to_parquet(filename)
+    
 INFURA_URL = "https://mainnet.infura.io/v3/12765045634040aba2c2ae29a97be8d4"   
 web3 = connect_to_ethereum_node(INFURA_URL)
 latest_block = web3.eth.get_block('latest').number
-get_block_one_hour_ago(web3, latest_block)
-
-
+start_block = get_block_one_hour_ago(web3, latest_block)    
+transactions = get_transactions(web3, start_block, latest_block)
+save_to_parquet(transactions, 'ethereum_transactions_last_hour.parquet')
