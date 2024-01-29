@@ -88,13 +88,15 @@ def upload_to_gcs(bucket_name, source_file_name):
     blob.upload_from_filename(source_file_name)
     print(f"File {source_file_name} uploaded to {destination_blob_name} in bucket {bucket_name}.")    
     
-# INFURA_URL = "https://mainnet.infura.io/v3/12765045634040aba2c2ae29a97be8d4"   
-# web3 = connect_to_ethereum_node(INFURA_URL)
-# latest_block = web3.eth.get_block('latest').number
-# start_block = get_block_one_hour_ago(web3, latest_block)    
-# transactions = get_transactions(web3, start_block, latest_block)
-# save_to_parquet(transactions, 'ethereum_transactions_last_min.parquet')
+INFURA_URL = "https://mainnet.infura.io/v3/12765045634040aba2c2ae29a97be8d4"   
+web3 = connect_to_ethereum_node(INFURA_URL)
+latest_block = web3.eth.get_block('latest').number
+start_block = get_block_one_hour_ago(web3, latest_block)    
+transactions = get_transactions(web3, start_block, latest_block)
 
+# Generate filename with current timestamp
+current_time_str = datetime.datetime.now().strftime("%Y%m%d%H%M")
+parquet_filename = f'ethereum_transactions_{current_time_str}.parquet'
 
-upload_to_gcs('evm_bucket', "ethereum_transactions_last_min.parquet")
-
+save_to_parquet(transactions, parquet_filename)
+upload_to_gcs('evm_bucket', parquet_filename)
