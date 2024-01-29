@@ -7,4 +7,5 @@ chain\bin
 chain\include
 chain\lib
 evm-env
-ethereum_*
+ethereum_transac*
+__pycache__/
