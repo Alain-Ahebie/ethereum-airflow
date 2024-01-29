@@ -26,17 +26,24 @@
         path: "/home/alaingcp2023_gmail_com/{{ item }}"
         state: directory
       loop:
-        - project
+        - project/src
         - utils
-        - pgk
 
     - name: Setup a Python virtual environment in 'evm' directory
       command: python3 -m venv /home/alaingcp2023_gmail_com/evm
+      args:
+        creates: /home/alaingcp2023_gmail_com/evm/bin/activate
       tags: [python, venv]
 
-    - name: Install Python packages within the virtual environment
+    - name: Copy requirements.txt to the remote machine
+      copy:
+        src: requirements.txt
+        dest: /home/alaingcp2023_gmail_com/requirements.txt
+      tags: [python, venv]
+
+    - name: Install Python packages within the virtual environment from requirements.txt
       pip:
-        name: [pandas, matplotlib, web3, requests, eth-brownie, py-solc-x, sqlalchemy]
+        requirements: /home/alaingcp2023_gmail_com/requirements.txt
         virtualenv: /home/alaingcp2023_gmail_com/evm
         virtualenv_command: python3 -m venv
       tags: [python, venv]
