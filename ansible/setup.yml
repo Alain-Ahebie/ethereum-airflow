@@ -37,7 +37,7 @@
 
     - name: Copy requirements.txt to the remote machine
       copy:
-        src: requirements.txt
+        src: /mnt/c/Users/AHEBIE/Documents/GHUB/ethereum-airflow/requirements.txt
         dest: /home/alaingcp2023_gmail_com/requirements.txt
       tags: [python, venv]
 
