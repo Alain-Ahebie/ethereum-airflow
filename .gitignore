@@ -9,3 +9,4 @@ chain\lib
 evm-env
 ethereum_transac*
 __pycache__/
+ethereum_*.log
