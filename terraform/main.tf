@@ -4,6 +4,16 @@ provider "google-beta" {
   region  = "us-central1"
 }
 
+# enable composer_api
+resource "google_project_service" "composer_api" {
+  provider = google-beta
+  project = "example-project"
+  service = "composer.googleapis.com"
+  // Disabling Cloud Composer API might irreversibly break all other
+  // environments in your project.
+  disable_on_destroy = false
+}
+
 # Create a Bucket named "evm_bucket"
 resource "google_storage_bucket" "evm_bucket" {
   project = "plomber"
