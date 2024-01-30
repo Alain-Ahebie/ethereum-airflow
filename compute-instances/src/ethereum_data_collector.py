@@ -3,8 +3,28 @@ import pandas as pd
 from web3 import Web3
 from web3.exceptions import Web3Exception
 from google.cloud import storage
-import logging
 import time
+import logging
+
+# Get today's date
+today = datetime.datetime.now().strftime("%Y-%m-%d")
+
+# Include the date in the filename
+log_filename = f'ethereum_data_collector_{today}.log'
+
+logging.basicConfig(filename=log_filename, level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+def log_execution_time(func):
+    """Decorator to log the execution time of a function."""
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        logging.info(f"{func.__name__} executed in {end_time - start_time:.2f} seconds")
+        return result
+    return wrapper
 
 def connect_to_ethereum_node(url):
     # Connects to an Ethereum node using the provided URL
