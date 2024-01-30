@@ -10,7 +10,7 @@ import logging
 today = datetime.datetime.now().strftime("%Y-%m-%d")
 
 # Include the date in the filename
-log_filename = f'ethereum_data_collector_{today}.log'
+log_filename = f'./compute-instances/logs/ethereum_data_collector_{today}.log'
 
 logging.basicConfig(filename=log_filename, level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,6 +26,7 @@ def log_execution_time(func):
         return result
     return wrapper
 
+@log_execution_time
 def connect_to_ethereum_node(url):
     # Connects to an Ethereum node using the provided URL
     try:
@@ -37,7 +38,8 @@ def connect_to_ethereum_node(url):
             return web3
     except Web3Exception as e:
         raise ConnectionError(f"An error occurred while connecting: {str(e)}")
-    
+
+@log_execution_time    
 def get_block_one_hour_ago(web3, latest_block):
     # Finds the block number that was closest to one hour ago
     one_hour_ago = datetime.datetime.now() - datetime.timedelta(minutes=1)
@@ -56,6 +58,7 @@ def get_block_one_hour_ago(web3, latest_block):
     print("block_number", block_number)    
     return block_number
 
+@log_execution_time
 def get_transactions(web3, start_block, end_block):
     # Retrieves transactions between the specified start and end blocks
     transactions = []
@@ -91,12 +94,13 @@ def get_transactions(web3, start_block, end_block):
             pass  # Continue with the next iteration even if an error occurs
     return transactions
 
+@log_execution_time
 def save_to_parquet(data, filename):
     # Saves the transaction data to a Parquet file
     df = pd.DataFrame(data)
     df.to_parquet(filename)
     
-    
+@log_execution_time    
 def upload_to_gcs(bucket_name, source_file_name):
     """Uploads a file to Google Cloud Storage, organized by year/month/day."""
     # Determine the current date and time for folder organization

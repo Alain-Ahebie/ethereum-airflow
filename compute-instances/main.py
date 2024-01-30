@@ -1,13 +1,20 @@
-import logging
 from src import ethereum_data_collector as edc
+import logging
+import datetime
+import os
+
+today = datetime.datetime.now().strftime("%Y-%m-%d")
+
+# Include the date in the filename
+log_filename = f'./compute-instances/logs/ethereum_data_collector_{today}.log'
 
 # Configure basic logging
-log_filename = 'ethereum_data_collector.log'
 logging.basicConfig(filename=log_filename, level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
+    logging.info("START --------------------------------------------------------")
     try:
         # Set your Ethereum node URL
         INFURA_URL = "https://mainnet.infura.io/v3/12765045634040aba2c2ae29a97be8d4"
@@ -39,7 +46,7 @@ def main():
         # Upload the Parquet file to Google Cloud Storage
         edc.upload_to_gcs('evm_bucket', parquet_filename)
         logging.info(f"File uploaded to Google Cloud Storage: {parquet_filename}.")
-
+        logging.info("END --------------------------------------------------------")
     except Exception as e:
         logging.error(f"Error in main execution: {e}")
         raise

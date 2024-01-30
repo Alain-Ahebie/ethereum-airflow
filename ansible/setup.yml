@@ -27,6 +27,7 @@
         state: directory
       loop:
         - project/src
+        - project/logs
         - utils
 
     - name: Setup a Python virtual environment in 'evm' directory
