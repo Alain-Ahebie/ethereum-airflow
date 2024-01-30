@@ -14,6 +14,28 @@ resource "google_project_service" "composer_api" {
   disable_on_destroy = false
 }
 
+resource "google_composer_environment" "composer_env" {
+  provider = google-beta
+  name   = "ethereum-data-orchestrator"  
+  region = "us-central1"
+
+  depends_on = [google_project_service.composer_api]
+
+  config {
+    node_count = 3
+
+    node_config {
+      zone         = "us-central1-c"
+      machine_type = "n1-standard-2"
+
+      network    = "projects/plomber/global/networks/default"
+      subnetwork = "projects/plomber/regions/your-gcp-region/subnetworks/default"
+    }
+  }
+}
+
+
+
 # Create a Bucket named "evm_bucket"
 resource "google_storage_bucket" "evm_bucket" {
   project = "plomber"
