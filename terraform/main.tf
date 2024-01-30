@@ -7,7 +7,7 @@ provider "google-beta" {
 # enable composer_api
 resource "google_project_service" "composer_api" {
   provider = google-beta
-  project = "example-project"
+  project = "plomber"
   service = "composer.googleapis.com"
   // Disabling Cloud Composer API might irreversibly break all other
   // environments in your project.
