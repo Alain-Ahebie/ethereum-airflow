@@ -3,6 +3,8 @@ import pandas as pd
 from web3 import Web3
 from web3.exceptions import Web3Exception
 from google.cloud import storage
+import logging
+import time
 
 def connect_to_ethereum_node(url):
     # Connects to an Ethereum node using the provided URL

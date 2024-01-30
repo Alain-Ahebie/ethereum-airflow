@@ -1,0 +1,6 @@
+2024-01-30 22:32:56,833 - INFO - Connected to Ethereum node.
+2024-01-30 22:32:56,952 - INFO - Latest block number: 19122027
+2024-01-30 22:32:57,592 - INFO - Start block (one hour ago): 19122022
+2024-01-30 22:34:18,834 - INFO - Transactions fetched successfully.
+2024-01-30 22:34:19,061 - INFO - Transactions saved to ethereum_transactions_20240130223418.parquet.
+2024-01-30 22:34:22,692 - INFO - File uploaded to Google Cloud Storage: ethereum_transactions_20240130223418.parquet.

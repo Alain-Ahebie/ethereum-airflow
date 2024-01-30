@@ -2,7 +2,10 @@ import logging
 from src import ethereum_data_collector as edc
 
 # Configure basic logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+log_filename = 'ethereum_data_collector.log'
+logging.basicConfig(filename=log_filename, level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
     try:
