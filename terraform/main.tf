@@ -29,7 +29,10 @@ resource "google_composer_environment" "composer_env" {
       machine_type = "n1-standard-2"
 
       network    = "projects/plomber/global/networks/default"
-      subnetwork = "projects/plomber/regions/your-gcp-region/subnetworks/default"
+      subnetwork = "projects/plomber/regions/us-central1/subnetworks/default"
+    }
+    software_config {
+      image_version = "composer-1.20.12-airflow-2.4.3" 
     }
   }
 }
