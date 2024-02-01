@@ -1,4 +1,3 @@
-# Add permission to folder project + compute folder
 - hosts: myserver
   become: yes
 
@@ -27,10 +26,19 @@
         path: "/home/alaingcp2023_gmail_com/{{ item }}"
         state: directory
       loop:
-        - project/src
-        - project/logs
-        - project/files
+        - project/compute-instances/src
+        - project/compute-instances/logs
+        - project/compute-instances/files
         - utils
+
+    - name: Grant full permissions to 'alaingcp2023_gmail_com' for the 'project' directory and all within
+      file:
+        path: "/home/alaingcp2023_gmail_com/project"
+        owner: alaingcp2023_gmail_com
+        group: alaingcp2023_gmail_com
+        mode: '0775'
+        recurse: yes
+        state: directory
 
     - name: Setup a Python virtual environment in 'evm' directory
       command: python3 -m venv /home/alaingcp2023_gmail_com/evm
