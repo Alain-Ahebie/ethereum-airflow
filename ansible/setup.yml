@@ -1,3 +1,4 @@
+# Add permission to folder project + compute folder
 - hosts: myserver
   become: yes
 
@@ -28,6 +29,7 @@
       loop:
         - project/src
         - project/logs
+        - project/files
         - utils
 
     - name: Setup a Python virtual environment in 'evm' directory

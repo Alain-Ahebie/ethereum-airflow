@@ -10,7 +10,7 @@ import logging
 today = datetime.datetime.now().strftime("%Y-%m-%d")
 
 # Include the date in the filename
-log_filename = f'./compute-instances/logs/ethereum_data_collector_{today}.log'
+log_filename = f'./logs/ethereum_data_collector_{today}.log'
 
 logging.basicConfig(filename=log_filename, level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
