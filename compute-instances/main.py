@@ -1,4 +1,5 @@
 from src import ethereum_data_collector as edc
+from pathlib import Path
 import logging
 import datetime
 import os

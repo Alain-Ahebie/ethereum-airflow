@@ -1,3 +1,4 @@
+from pathlib import Path
 import datetime
 import pandas as pd
 from web3 import Web3
@@ -6,11 +7,14 @@ from google.cloud import storage
 import time
 import logging
 
-# Get today's date
+# Current script path
+script_path = Path(__file__).resolve()
+# Move up one level up
+one_levels_up = script_path.parents[1]
+# get the current date
 today = datetime.datetime.now().strftime("%Y-%m-%d")
-
-# Include the date in the filename
-log_filename = f'./logs/ethereum_data_collector_{today}.log'
+# Include the path and date in the filename
+log_filename = f'{one_levels_up}/logs/ethereum_data_collector_{today}.log'
 
 logging.basicConfig(filename=log_filename, level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
