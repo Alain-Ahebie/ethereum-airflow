@@ -4,15 +4,14 @@ import logging
 import datetime
 import os
 
+# Current script path
+script_path = Path(__file__).resolve()
+#select current directory
+current_dir = script_path.parents[0]
+# get the current date
 today = datetime.datetime.now().strftime("%Y-%m-%d")
-
-# Include the date in the filename
-log_filename = f'./compute-instances/logs/ethereum_data_collector_{today}.log'
-
-# Configure basic logging
-logging.basicConfig(filename=log_filename, level=logging.INFO, 
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Include the path and date in the filename
+log_filename = f'{current_dir}/logs/ethereum_data_collector_{today}.log'
 
 def main():
     logging.info("START --------------------------------------------------------")

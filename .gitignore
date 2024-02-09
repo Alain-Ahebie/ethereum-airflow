@@ -11,3 +11,5 @@ ethereum_transac*
 __pycache__/
 ethereum_*.log
 eth-collect
+.dockerignore
+.*
