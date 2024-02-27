@@ -1,47 +1,30 @@
 provider "google-beta" {
-  # credentials = file("<PATH_TO_SERVICE_ACCOUNT_KEY.json>") 
-  project = "plomber"
+  credentials = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/astro/include/gcp/starclay-medley-0a27887a60b6.json")
+  project = "starclay-medley"
   region  = "us-central1"
+}
+
+# Enable BigQuery API
+resource "google_project_service" "bigquery_api" {
+  project            = "starclay-medley"
+  service            = "bigquery.googleapis.com"
+  disable_on_destroy = false
 }
 
 # enable composer_api
 resource "google_project_service" "composer_api" {
   provider = google-beta
-  project = "plomber"
+  project = "starclay-medley"
   service = "composer.googleapis.com"
   // Disabling Cloud Composer API might irreversibly break all other
   // environments in your project.
   disable_on_destroy = false
 }
 
-resource "google_composer_environment" "composer_env" {
-  provider = google-beta
-  name   = "ethereum-data-orchestrator"  
-  region = "us-central1"
-
-  depends_on = [google_project_service.composer_api]
-
-  config {
-    node_count = 3
-
-    node_config {
-      zone         = "us-central1-c"
-      machine_type = "n1-standard-2"
-
-      network    = "projects/plomber/global/networks/default"
-      subnetwork = "projects/plomber/regions/us-central1/subnetworks/default"
-    }
-    software_config {
-      image_version = "composer-1.20.12-airflow-2.4.3" 
-    }
-  }
-}
-
-
 
 # Create a Bucket named "evm_bucket"
 resource "google_storage_bucket" "evm_bucket" {
-  project = "plomber"
+  project = "starclay-medley"
   name          = "evm_bucket"
   location      = "US"
   storage_class = "STANDARD"
@@ -51,14 +34,14 @@ resource "google_storage_bucket" "evm_bucket" {
 
 # Create a BigQuery dataset named "eth-data"
 resource "google_bigquery_dataset" "eth_data" {
-  project = "plomber"
+  project = "starclay-medley"
   dataset_id = "eth_data"
   location   = "US" # Choose the appropriate location
 }
 
 # Create a BigQuery table named "EVM_TRANSACTIONS" within the "eth-data" dataset
 resource "google_bigquery_table" "evm_transactions" {
-  project = "plomber"
+  project = "starclay-medley"
   dataset_id = google_bigquery_dataset.eth_data.dataset_id
   table_id   = "EVM_TRANSACTIONS"
 
@@ -88,7 +71,7 @@ resource "google_bigquery_table" "evm_transactions" {
 # For information about validating this Terraform code, see https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/google-cloud-platform-build#format-and-validate-the-configuration
 
 resource "google_compute_instance" "eth-collect" {
-    project = "plomber"
+  project = "starclay-medley"
   boot_disk {
     auto_delete = true
     device_name = "eth-collect"
@@ -120,7 +103,7 @@ resource "google_compute_instance" "eth-collect" {
 
     queue_count = 0
     stack_type  = "IPV4_ONLY"
-    subnetwork  = "projects/plomber/regions/us-central1/subnetworks/default"
+    subnetwork  = "projects/starclay-medley/regions/us-central1/subnetworks/default"
   }
 
   scheduling {
@@ -172,7 +155,7 @@ data "google_client_openid_userinfo" "me" {
 }
 
 resource "google_os_login_ssh_public_key" "default" {
-  project = "plomber"
+  project = "starclay-medley"
   user = data.google_client_openid_userinfo.me.email
   key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key.pub")
   # Path to your public key
