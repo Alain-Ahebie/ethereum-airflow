@@ -29,6 +29,7 @@
         - project/compute-instances/src
         - project/compute-instances/logs
         - project/compute-instances/files
+        - project/compute-instances/test
         - utils
 
     - name: Grant full permissions to 'alaingcp2023_gmail_com' for the 'project' directory and all within

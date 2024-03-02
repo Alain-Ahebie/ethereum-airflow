@@ -4,6 +4,15 @@ provider "google-beta" {
   region  = "us-central1"
 }
 
+# Don't forget to enable Service Usage API manualy
+
+# Enable Storage API
+resource "google_project_service" "storage_api" {
+  project            = "starclay-medley"
+  service            = "storage.googleapis.com"
+  disable_on_destroy = false
+}
+
 # Enable BigQuery API
 resource "google_project_service" "bigquery_api" {
   project            = "starclay-medley"
@@ -22,13 +31,14 @@ resource "google_project_service" "composer_api" {
 }
 
 
-# Create a Bucket named "evm_bucket"
-resource "google_storage_bucket" "evm_bucket" {
+# Create a Bucket named "evm_data"
+resource "google_storage_bucket" "evm_data" {
   project = "starclay-medley"
-  name          = "evm_bucket"
+  name          = "evm_data"
   location      = "US"
   storage_class = "STANDARD"
   force_destroy = true  # Allows deletion of bucket with contents
+  depends_on = [google_project_service.bigquery_api]
 
 }
 
@@ -37,35 +47,10 @@ resource "google_bigquery_dataset" "eth_data" {
   project = "starclay-medley"
   dataset_id = "eth_data"
   location   = "US" # Choose the appropriate location
+  depends_on = [google_project_service.storage_api]
 }
 
 # Create a BigQuery table named "EVM_TRANSACTIONS" within the "eth-data" dataset
-resource "google_bigquery_table" "evm_transactions" {
-  project = "starclay-medley"
-  dataset_id = google_bigquery_dataset.eth_data.dataset_id
-  table_id   = "EVM_TRANSACTIONS"
-
-  schema = jsonencode([
-    {
-      name = "transaction_hash",
-      type = "STRING",
-      mode = "REQUIRED"
-    },
-    {
-      name = "block_number",
-      type = "INTEGER",
-      mode = "REQUIRED"
-    },
-    {
-      name = "value",
-      type = "FLOAT",
-      mode = "NULLABLE"
-    },
-    # Add additional fields as required
-  ])
-
-  # Optionally, i can define time partitioning, clustering, or other features here
-}
 
 # This code is compatible with Terraform 4.25.0 and versions that are backwards compatible to 4.25.0.
 # For information about validating this Terraform code, see https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/google-cloud-platform-build#format-and-validate-the-configuration
@@ -114,7 +99,7 @@ resource "google_compute_instance" "eth-collect" {
   }
 
   service_account {
-    email  = "908912453933-compute@developer.gserviceaccount.com"
+    email  = "572636540308-compute@developer.gserviceaccount.com"
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 
@@ -151,12 +136,12 @@ resource "google_compute_instance" "eth-collect" {
 }
 
 
-data "google_client_openid_userinfo" "me" {
-}
+# data "google_client_openid_userinfo" "me" {
+# }
 
-resource "google_os_login_ssh_public_key" "default" {
-  project = "starclay-medley"
-  user = data.google_client_openid_userinfo.me.email
-  key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key.pub")
-  # Path to your public key
-}
+# resource "google_os_login_ssh_public_key" "default" {
+#   project = "starclay-medley"
+#   user = data.google_client_openid_userinfo.me.email
+#   key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key.pub")
+#   # Path to your public key
+# }
