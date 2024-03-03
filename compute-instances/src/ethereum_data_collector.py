@@ -44,6 +44,7 @@ def connect_to_ethereum_node(url):
     except Web3Exception as e:
         raise ConnectionError(f"An error occurred while connecting: {str(e)}")
     
+@log_execution_time    
 def fetch_receipt_with_backoff(web3, tx_hash, max_attempts=5):
     """
     Attempts to fetch a transaction receipt with exponential backoff.
@@ -94,13 +95,41 @@ def get_block_one_hour_ago(web3, latest_block):
 
 @log_execution_time
 def get_transactions(web3, start_block, end_block):
-    # Retrieves transactions between the specified start and end blocks
+    """
+    Retrieves transactions between the specified start and end blocks from the Ethereum blockchain.
+
+    Parameters:
+    - web3: An instance of Web3 connected to an Ethereum node.
+    - start_block: The starting block number from which to retrieve transactions.
+    - end_block: The ending block number until which to retrieve transactions.
+
+    Returns:
+    - A list of dictionaries, each representing a transaction within the specified block range. Each dictionary
+      contains details of the transaction, such as hash, sender and receiver addresses, value transferred,
+      gas price, gas used, and more.
+
+    Note:
+    - This function uses an exponential backoff strategy to fetch transaction receipts, improving reliability
+      under rate limit constraints.
+    """
+
+    # Initialize an empty list to store transaction details
     transactions = []
+
+    # Iterate over each block in the specified range
     for block_number in range(start_block, end_block + 1):
         try:
+            # Fetch the block with full transactions details
             block = web3.eth.get_block(block_number, full_transactions=True)
+            # Iterate over each transaction in the block
             for tx in block.transactions:
-                receipt = web3.eth.get_transaction_receipt(tx.hash)
+                # Use a helper function with exponential backoff to fetch the transaction receipt
+                receipt = fetch_receipt_with_backoff(web3, tx.hash)
+                # If the receipt is None, the maximum retry limit was reached; skip this transaction
+                if receipt is None:
+                    continue
+                
+                # Append a dictionary with transaction details to the transactions list
                 transactions.append({
                     "Hash": tx.hash.hex(),  # Unique identifier of the transaction
                     "From": tx['from'],  # Sender's Ethereum address
