@@ -16,6 +16,7 @@ today = datetime.datetime.now().strftime("%Y-%m-%d")
 # Include the path and date in the filename
 log_filename = f'{one_levels_up}/logs/ethereum_data_collector_{today}.log'
 
+
 logging.basicConfig(filename=log_filename, level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -42,6 +43,35 @@ def connect_to_ethereum_node(url):
             return web3
     except Web3Exception as e:
         raise ConnectionError(f"An error occurred while connecting: {str(e)}")
+    
+def fetch_receipt_with_backoff(web3, tx_hash, max_attempts=5):
+    """
+    Attempts to fetch a transaction receipt with exponential backoff.
+
+    Parameters:
+    - web3: The Web3 instance connected to an Ethereum node.
+    - tx_hash: The hash of the transaction for which to fetch the receipt.
+    - max_attempts: Maximum number of attempts to fetch the receipt.
+
+    Returns:
+    - The transaction receipt if successful, None otherwise.
+    """
+    attempt = 0
+    wait_time = 1  # start with 1 second
+    while attempt < max_attempts:
+        try:
+            receipt = web3.eth.get_transaction_receipt(tx_hash)
+            return receipt  # success, exit the function with the receipt
+        except Exception as e:  # Catching a generic exception for the example; specify as needed
+            logging.warning(f"Attempt {attempt + 1} failed for transaction {tx_hash.hex()}: {e}")
+            if attempt < max_attempts - 1:
+                time.sleep(wait_time)
+                wait_time *= 2  # double the wait time for the next attempt
+                attempt += 1
+            else:
+                logging.error(f"Failed to fetch receipt for {tx_hash.hex()} after {max_attempts} attempts at {datetime.now()}.")
+                return None
+
 
 @log_execution_time    
 def get_block_one_hour_ago(web3, latest_block):
@@ -100,13 +130,38 @@ def get_transactions(web3, start_block, end_block):
 
 @log_execution_time
 def save_to_parquet(data, filename):
-    # Saves the transaction data to a Parquet file
+    """
+    Saves the transaction data to a Parquet file.
+    
+    Parameters:
+    - data: The data to be saved.
+    - filename: The path and name of the file where data should be saved. Can be a string or a Path object.
+    """
+    # Convert filename to a Path object (if it's not already one)
+    filename = Path(filename)
+    
+    # Ensure the directory exists
+    filename.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Convert the data to a DataFrame and save it as a Parquet file
     df = pd.DataFrame(data)
     df.to_parquet(filename)
     
+    print(f"Data successfully saved to {filename}")
+    
 @log_execution_time    
-def upload_to_gcs(bucket_name, source_file_name):
-    """Uploads a file to Google Cloud Storage, organized by year/month/day."""
+def upload_to_gcs(bucket_name, source_file_path):
+    """
+    Uploads a file to Google Cloud Storage, organized by year/month/day.
+
+    Parameters:
+    - bucket_name (str): The name of the Google Cloud Storage bucket where the file will be uploaded.
+    - source_file_path (str or Path): The full path to the file that will be uploaded. This can be a string or a Path object.
+    """
+    # Convert source_file_path to a Path object to easily extract the filename
+    source_file_path = Path(source_file_path)
+    source_file_name = source_file_path.name
+    
     # Determine the current date and time for folder organization
     now = datetime.datetime.now()
     destination_blob_name = f"year={now.year}/{now.strftime('%m')}/{now.strftime('%d')}/{source_file_name}"
@@ -115,5 +170,6 @@ def upload_to_gcs(bucket_name, source_file_name):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
-    blob.upload_from_filename(source_file_name)
-    return print(f"File {source_file_name} uploaded to {destination_blob_name} in bucket {bucket_name}.")
+    # Use the full path for uploading the file
+    blob.upload_from_filename(str(source_file_path))
+    print(f"File {source_file_name} uploaded to {destination_blob_name} in bucket {bucket_name}.")

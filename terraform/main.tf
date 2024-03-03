@@ -136,12 +136,12 @@ resource "google_compute_instance" "eth-collect" {
 }
 
 
-# data "google_client_openid_userinfo" "me" {
-# }
+data "google_client_openid_userinfo" "me" {
+}
 
-# resource "google_os_login_ssh_public_key" "default" {
-#   project = "starclay-medley"
-#   user = data.google_client_openid_userinfo.me.email
-#   key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key.pub")
-#   # Path to your public key
-# }
+resource "google_os_login_ssh_public_key" "default" {
+  project = "starclay-medley"
+  user = data.google_client_openid_userinfo.me.email
+  key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key.pub")
+  # Path to your public key
+}

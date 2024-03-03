@@ -4,6 +4,8 @@ import logging
 import datetime
 import os
 
+"""Implementing Exponential Backoff to avoid rate limit !!"""
+
 # Current script path
 script_path = Path(__file__).resolve()
 #select current directory
@@ -38,13 +40,15 @@ def main():
         # Generate filename with current timestamp for the Parquet file
         current_time_str = edc.datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         parquet_filename = f'ethereum_transactions_{current_time_str}.parquet'
+        files_folder =  f'{current_dir}/files/{parquet_filename}'
 
         # Save transactions to a Parquet file
-        edc.save_to_parquet(transactions, parquet_filename)
+        edc.save_to_parquet(transactions, files_folder)
         logging.info(f"Transactions saved to {parquet_filename}.")
 
         # Upload the Parquet file to Google Cloud Storage
-        edc.upload_to_gcs('evm_bucket', parquet_filename)
+        # print(f"Attempting to upload file at path: {files_folder}/ethereum_transactions_20240302235715.parquet")
+        edc.upload_to_gcs('evm_data', files_folder)
         logging.info(f"File uploaded to Google Cloud Storage: {parquet_filename}.")
         logging.info("END --------------------------------------------------------")
     except Exception as e:
