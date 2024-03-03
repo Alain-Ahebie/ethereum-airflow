@@ -1,10 +1,15 @@
+"""
+This module contains the main entry point for the application.
+
+It demonstrates how to interact with the Ethereum blockchain,
+fetch transactions between specified blocks, and process them
+for further analysis or storage.
+"""
 from src import ethereum_data_collector as edc
 from pathlib import Path
 import logging
 import datetime
 import os
-
-"""Implementing Exponential Backoff to avoid rate limit !!"""
 
 # Current script path
 script_path = Path(__file__).resolve()
@@ -47,7 +52,6 @@ def main():
         logging.info(f"Transactions saved to {parquet_filename}.")
 
         # Upload the Parquet file to Google Cloud Storage
-        # print(f"Attempting to upload file at path: {files_folder}/ethereum_transactions_20240302235715.parquet")
         edc.upload_to_gcs('evm_data', files_folder)
         logging.info(f"File uploaded to Google Cloud Storage: {parquet_filename}.")
         logging.info("END --------------------------------------------------------")

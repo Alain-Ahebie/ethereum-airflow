@@ -44,7 +44,7 @@ def connect_to_ethereum_node(url):
     except Web3Exception as e:
         raise ConnectionError(f"An error occurred while connecting: {str(e)}")
     
-@log_execution_time    
+   
 def fetch_receipt_with_backoff(web3, tx_hash, max_attempts=5):
     """
     Attempts to fetch a transaction receipt with exponential backoff.
