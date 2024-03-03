@@ -21,6 +21,17 @@ today = datetime.datetime.now().strftime("%Y-%m-%d")
 log_filename = f'{current_dir}/logs/ethereum_data_collector_{today}.log'
 
 def main():
+    """
+    Main function to orchestrate the process flow.
+
+    This function performs the following steps:
+    1. Connects to an Ethereum node.
+    2. Fetches the latest block number.
+    3. Determines the start block based on a time offset.
+    4. Fetches transactions between the start block and the latest block.
+    5. Saves the transactions to a Parquet file.
+    6. Uploads the Parquet file to Google Cloud Storage.
+    """
     logging.info("START --------------------------------------------------------")
     try:
         # Set your Ethereum node URL
