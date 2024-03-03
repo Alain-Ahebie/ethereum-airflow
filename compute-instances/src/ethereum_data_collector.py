@@ -6,13 +6,14 @@ specified block range, and save these transactions to a Parquet file. Additional
 it provides utilities for uploading the collected data to Google Cloud Storage.
 """
 from pathlib import Path
+import time
+import logging
 import datetime
 import pandas as pd
 from web3 import Web3
 from web3.exceptions import Web3Exception
 from google.cloud import storage
-import time
-import logging
+
 
 # Current script path
 script_path = Path(__file__).resolve()
@@ -24,7 +25,7 @@ today = datetime.datetime.now().strftime("%Y-%m-%d")
 log_filename = f'{one_levels_up}/logs/ethereum_data_collector_{today}.log'
 
 
-logging.basicConfig(filename=log_filename, level=logging.INFO, 
+logging.basicConfig(filename=log_filename, level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 def log_execution_time(func):
@@ -39,7 +40,23 @@ def log_execution_time(func):
 
 @log_execution_time
 def connect_to_ethereum_node(url):
-    # Connects to an Ethereum node using the provided URL
+    """
+    Connects to an Ethereum node using the provided URL.
+
+    Parameters:
+    - url (str): URL of the Ethereum node, including protocol and port if necessary.
+
+    Returns:
+    - Web3 instance connected to the specified Ethereum node. Raises ConnectionError
+      on failure.
+
+    Raises:
+    - ConnectionError: If connection fails or an error occurs during connection.
+
+    Attempts to establish a connection to an Ethereum node. On success, prints a
+    confirmation and returns the Web3 instance. Otherwise, raises ConnectionError with
+    details.
+    """
     try:
         web3 = Web3(Web3.HTTPProvider(url))
         if not web3.is_connected():
@@ -75,12 +92,26 @@ def fetch_receipt_with_backoff(web3, tx_hash, max_attempts=5):
                 wait_time *= 2  # double the wait time for the next attempt
                 attempt += 1
             else:
-                logging.error(f"""Failed to fetch receipt for {tx_hash.hex()} 
+                logging.error(f"""Failed to fetch receipt for {tx_hash.hex()}
                               after {max_attempts} attempts at {datetime.now()}.""")
                 return None
 
-@log_execution_time  
+@log_execution_time
 def get_block_one_hour_ago(web3, latest_block):
+    """
+    Finds the block number closest to one hour ago from the latest block.
+
+    Parameters:
+    - web3: Web3 instance for Ethereum blockchain interaction.
+    - latest_block: Number of the most recent block.
+
+    Returns:
+    - Block number closest to one hour ago. Returns genesis block (0) if it reaches
+      the start without finding such a block.
+
+    Iterates backwards from the latest block, comparing each block's timestamp to
+    one hour ago until it finds the closest block.
+    """
     # Finds the block number that was closest to one hour ago
     one_hour_ago = datetime.datetime.now() - datetime.timedelta(minutes=1)
     block_number = latest_block
@@ -95,7 +126,7 @@ def get_block_one_hour_ago(web3, latest_block):
         except Web3Exception as e:
             print(f"An error occurred while fetching block: {str(e)}")
             break
-    print("block_number", block_number)    
+    print("block_number", block_number)
     return block_number
 
 @log_execution_time
@@ -110,12 +141,12 @@ def get_transactions(web3, start_block, end_block):
 
     Returns:
     - A list of dictionaries, each representing a transaction within the specified block range. 
-      each dictionary contains details of the transaction, such as hash, sender and receiver addresses,
-      value transferred,gas price, gas used, and more.
+      each dictionary contains details of the transaction, such as hash, sender and receiver
+      addresses, value transferred,gas price, gas used, and more.
 
     Note:
-    - This function uses an exponential backoff strategy to fetch transaction receipts, improving reliability
-      under rate limit constraints.
+    - This function uses an exponential backoff strategy to fetch transaction receipts, improving 
+    reliability under rate limit constraints.
     """
 
     # Initialize an empty list to store transaction details
@@ -133,7 +164,7 @@ def get_transactions(web3, start_block, end_block):
                 # If the receipt is None, the maximum retry limit was reached; skip this transaction
                 if receipt is None:
                     continue
-                
+
                 # Append a dictionary with transaction details to the transactions list
                 transactions.append({
                     "Hash": tx.hash.hex(),  # Unique identifier of the transaction
@@ -173,17 +204,17 @@ def save_to_parquet(data, filename):
     """
     # Convert filename to a Path object (if it's not already one)
     filename = Path(filename)
-    
+
     # Ensure the directory exists
     filename.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Convert the data to a DataFrame and save it as a Parquet file
     df = pd.DataFrame(data)
     df.to_parquet(filename)
-    
+
     print(f"Data successfully saved to {filename}")
-    
-@log_execution_time    
+
+@log_execution_time
 def upload_to_gcs(bucket_name, source_file_path):
     """
     Uploads a file to Google Cloud Storage, organized by year/month/day.
@@ -196,7 +227,7 @@ def upload_to_gcs(bucket_name, source_file_path):
     # Convert source_file_path to a Path object to easily extract the filename
     source_file_path = Path(source_file_path)
     source_file_name = source_file_path.name
-    
+
     # Determine the current date and time for folder organization
     now = datetime.datetime.now()
     destination_blob_name = f"year={now.year}/{now.strftime('%m')}/{now.strftime('%d')}/{source_file_name}"
