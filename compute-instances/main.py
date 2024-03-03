@@ -5,11 +5,10 @@ It demonstrates how to interact with the Ethereum blockchain,
 fetch transactions between specified blocks, and process them
 for further analysis or storage.
 """
-from src import ethereum_data_collector as edc
 from pathlib import Path
 import logging
 import datetime
-import os
+from src import ethereum_data_collector as edc
 
 # Current script path
 script_path = Path(__file__).resolve()
@@ -19,6 +18,8 @@ current_dir = script_path.parents[0]
 today = datetime.datetime.now().strftime("%Y-%m-%d")
 # Include the path and date in the filename
 log_filename = f'{current_dir}/logs/ethereum_data_collector_{today}.log'
+# Set your Ethereum node URL
+INFURA_URL = "https://mainnet.infura.io/v3/12765045634040aba2c2ae29a97be8d4"
 
 def main():
     """
@@ -34,20 +35,17 @@ def main():
     """
     logging.info("START --------------------------------------------------------")
     try:
-        # Set your Ethereum node URL
-        INFURA_URL = "https://mainnet.infura.io/v3/12765045634040aba2c2ae29a97be8d4"
-
         # Connect to Ethereum node
         web3 = edc.connect_to_ethereum_node(INFURA_URL)
         logging.info("Connected to Ethereum node.")
 
         # Get the latest block number
         latest_block = web3.eth.get_block('latest').number
-        logging.info(f"Latest block number: {latest_block}")
+        logging.info("Latest block number: %s", latest_block)
 
         # Find the start block (one hour ago or one minute ago)
         start_block = edc.get_block_one_hour_ago(web3, latest_block)
-        logging.info(f"Start block (one hour ago): {start_block}")
+        logging.info("Start block (one hour ago): %s", start_block)
 
         # Fetch transactions between start block and latest block
         transactions = edc.get_transactions(web3, start_block, latest_block)
@@ -60,14 +58,14 @@ def main():
 
         # Save transactions to a Parquet file
         edc.save_to_parquet(transactions, files_folder)
-        logging.info(f"Transactions saved to {parquet_filename}.")
+        logging.info("Transactions saved to %s .",parquet_filename)
 
         # Upload the Parquet file to Google Cloud Storage
         edc.upload_to_gcs('evm_data', files_folder)
-        logging.info(f"File uploaded to Google Cloud Storage: {parquet_filename}.")
+        logging.info("File uploaded to Google Cloud Storage: %s .",parquet_filename)
         logging.info("END --------------------------------------------------------")
     except Exception as e:
-        logging.error(f"Error in main execution: {e}")
+        logging.error("Error in main execution: %s", e)
         raise
 
 if __name__ == "__main__":
