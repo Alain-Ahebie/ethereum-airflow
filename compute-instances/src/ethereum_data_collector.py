@@ -1,3 +1,10 @@
+"""
+This module contains functions for collecting and processing Ethereum blockchain data.
+
+It includes functionality to connect to an Ethereum node, fetch transactions within a 
+specified block range, and save these transactions to a Parquet file. Additionally, 
+it provides utilities for uploading the collected data to Google Cloud Storage.
+"""
 from pathlib import Path
 import datetime
 import pandas as pd
@@ -19,7 +26,6 @@ log_filename = f'{one_levels_up}/logs/ethereum_data_collector_{today}.log'
 
 logging.basicConfig(filename=log_filename, level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
-
 
 def log_execution_time(func):
     """Decorator to log the execution time of a function."""
@@ -43,8 +49,7 @@ def connect_to_ethereum_node(url):
             return web3
     except Web3Exception as e:
         raise ConnectionError(f"An error occurred while connecting: {str(e)}")
-    
-   
+
 def fetch_receipt_with_backoff(web3, tx_hash, max_attempts=5):
     """
     Attempts to fetch a transaction receipt with exponential backoff.
@@ -70,11 +75,11 @@ def fetch_receipt_with_backoff(web3, tx_hash, max_attempts=5):
                 wait_time *= 2  # double the wait time for the next attempt
                 attempt += 1
             else:
-                logging.error(f"Failed to fetch receipt for {tx_hash.hex()} after {max_attempts} attempts at {datetime.now()}.")
+                logging.error(f"""Failed to fetch receipt for {tx_hash.hex()} 
+                              after {max_attempts} attempts at {datetime.now()}.""")
                 return None
 
-
-@log_execution_time    
+@log_execution_time  
 def get_block_one_hour_ago(web3, latest_block):
     # Finds the block number that was closest to one hour ago
     one_hour_ago = datetime.datetime.now() - datetime.timedelta(minutes=1)
@@ -104,9 +109,9 @@ def get_transactions(web3, start_block, end_block):
     - end_block: The ending block number until which to retrieve transactions.
 
     Returns:
-    - A list of dictionaries, each representing a transaction within the specified block range. Each dictionary
-      contains details of the transaction, such as hash, sender and receiver addresses, value transferred,
-      gas price, gas used, and more.
+    - A list of dictionaries, each representing a transaction within the specified block range. 
+      each dictionary contains details of the transaction, such as hash, sender and receiver addresses,
+      value transferred,gas price, gas used, and more.
 
     Note:
     - This function uses an exponential backoff strategy to fetch transaction receipts, improving reliability
@@ -185,7 +190,8 @@ def upload_to_gcs(bucket_name, source_file_path):
 
     Parameters:
     - bucket_name (str): The name of the Google Cloud Storage bucket where the file will be uploaded.
-    - source_file_path (str or Path): The full path to the file that will be uploaded. This can be a string or a Path object.
+    - source_file_path (str or Path): The full path to the file that will be uploaded, 
+        This can be a string or a Path object.
     """
     # Convert source_file_path to a Path object to easily extract the filename
     source_file_path = Path(source_file_path)
