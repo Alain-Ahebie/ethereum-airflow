@@ -23,7 +23,7 @@
 
     - name: Create directories
       file:
-        path: "/home/alaingcp2023_gmail_com/{{ item }}"
+        path: "/home/aahebie_starclay_fr/{{ item }}"
         state: directory
       loop:
         - project/compute-instances/src
@@ -32,30 +32,42 @@
         - project/compute-instances/test
         - utils
 
-    - name: Grant full permissions to 'alaingcp2023_gmail_com' for the 'project' directory and all within
+    - name: Grant full permissions to 'aahebie_starclay_fr' for the 'project' directory and all within
       file:
-        path: "/home/alaingcp2023_gmail_com/project"
-        owner: alaingcp2023_gmail_com
-        group: alaingcp2023_gmail_com
+        path: "/home/aahebie_starclay_fr/project"
+        owner: aahebie_starclay_fr
+        group: aahebie_starclay_fr
         mode: '0775'
         recurse: yes
         state: directory
 
+    - name: Copy main.py to the remote machine
+      copy:
+        src: /mnt/c/Users/AHEBIE/Documents/GHUB/ethereum-airflow/compute-instances/main.py
+        dest: /home/aahebie_starclay_fr/project/compute-instances/main.py
+      tags: [deploy, compute-instances]
+
+    - name: Copy ethereum_data_collector.py to the remote machine
+      copy:
+        src: /mnt/c/Users/AHEBIE/Documents/GHUB/ethereum-airflow/compute-instances/src/ethereum_data_collector.py
+        dest: /home/aahebie_starclay_fr/project/compute-instances/src/ethereum_data_collector.py
+      tags: [deploy, compute-instances]
+
     - name: Setup a Python virtual environment in 'evm' directory
-      command: python3 -m venv /home/alaingcp2023_gmail_com/evm
+      command: python3 -m venv /home/aahebie_starclay_fr/evm
       args:
-        creates: /home/alaingcp2023_gmail_com/evm/bin/activate
+        creates: /home/aahebie_starclay_fr/evm/bin/activate
       tags: [python, venv]
 
     - name: Copy requirements.txt to the remote machine
       copy:
         src: /mnt/c/Users/AHEBIE/Documents/GHUB/ethereum-airflow/requirements.txt
-        dest: /home/alaingcp2023_gmail_com/requirements.txt
+        dest: /home/aahebie_starclay_fr/requirements.txt
       tags: [python, venv]
 
     - name: Install Python packages within the virtual environment from requirements.txt
       pip:
-        requirements: /home/alaingcp2023_gmail_com/requirements.txt
-        virtualenv: /home/alaingcp2023_gmail_com/evm
+        requirements: /home/aahebie_starclay_fr/requirements.txt
+        virtualenv: /home/aahebie_starclay_fr/evm
         virtualenv_command: python3 -m venv
       tags: [python, venv]
