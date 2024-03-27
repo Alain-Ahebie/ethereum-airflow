@@ -1,0 +1,3 @@
+name: 'evm_dbt_project'
+vars:
+    my_name: "No entry"
