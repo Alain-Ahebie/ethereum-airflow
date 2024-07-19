@@ -1,21 +1,23 @@
 provider "google-beta" {
-  credentials = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/astro/include/gcp/starclay-medley-0a27887a60b6.json")
-  project = "starclay-medley"
+  project = "halogen-segment-241921"
   region  = "us-central1"
 }
 
+data "google_compute_default_service_account" "default" {
+  project = "halogen-segment-241921"
+}
 # Don't forget to enable Service Usage API manualy
 
 # Enable Storage API
 resource "google_project_service" "storage_api" {
-  project            = "starclay-medley"
+  project            = "halogen-segment-241921"
   service            = "storage.googleapis.com"
   disable_on_destroy = false
 }
 
 # Enable BigQuery API
 resource "google_project_service" "bigquery_api" {
-  project            = "starclay-medley"
+  project            = "halogen-segment-241921"
   service            = "bigquery.googleapis.com"
   disable_on_destroy = false
 }
@@ -23,7 +25,7 @@ resource "google_project_service" "bigquery_api" {
 # enable composer_api
 resource "google_project_service" "composer_api" {
   provider = google-beta
-  project = "starclay-medley"
+  project = "halogen-segment-241921"
   service = "composer.googleapis.com"
   // Disabling Cloud Composer API might irreversibly break all other
   // environments in your project.
@@ -33,7 +35,7 @@ resource "google_project_service" "composer_api" {
 
 # Create a Bucket named "evm_data"
 resource "google_storage_bucket" "evm_data" {
-  project = "starclay-medley"
+  project = "halogen-segment-241921"
   name          = "evm_data"
   location      = "US"
   storage_class = "STANDARD"
@@ -44,7 +46,7 @@ resource "google_storage_bucket" "evm_data" {
 
 # Create a BigQuery dataset named "eth-data"
 resource "google_bigquery_dataset" "eth_data" {
-  project = "starclay-medley"
+  project = "halogen-segment-241921"
   dataset_id = "eth_data"
   location   = "US" # Choose the appropriate location
   depends_on = [google_project_service.storage_api]
@@ -56,7 +58,7 @@ resource "google_bigquery_dataset" "eth_data" {
 # For information about validating this Terraform code, see https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/google-cloud-platform-build#format-and-validate-the-configuration
 
 resource "google_compute_instance" "eth-collect" {
-  project = "starclay-medley"
+  project = "halogen-segment-241921"
   boot_disk {
     auto_delete = true
     device_name = "eth-collect"
@@ -88,7 +90,7 @@ resource "google_compute_instance" "eth-collect" {
 
     queue_count = 0
     stack_type  = "IPV4_ONLY"
-    subnetwork  = "projects/starclay-medley/regions/us-central1/subnetworks/default"
+    subnetwork  = "projects/halogen-segment-241921/regions/us-central1/subnetworks/default"
   }
 
   scheduling {
@@ -99,7 +101,7 @@ resource "google_compute_instance" "eth-collect" {
   }
 
   service_account {
-    email  = "572636540308-compute@developer.gserviceaccount.com"
+    email  = data.google_compute_default_service_account.default.email
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 
@@ -140,8 +142,16 @@ data "google_client_openid_userinfo" "me" {
 }
 
 resource "google_os_login_ssh_public_key" "default" {
-  project = "starclay-medley"
+  project = "halogen-segment-241921"
   user = data.google_client_openid_userinfo.me.email
   key = file("C:/Users/AHEBIE/Documents/GHUB/ethereum-airflow/utils/my_ssh_keys/eth-ssh-key.pub")
   # Path to your public key
+}
+
+output "authenticated_user_email" {
+  value = data.google_client_openid_userinfo.me.email
+}
+
+output "default_gcompute_email" {
+  value = data.google_compute_default_service_account.default.email
 }

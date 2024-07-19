@@ -23,7 +23,7 @@
 
     - name: Create directories
       file:
-        path: "/home/aahebie_starclay_fr/{{ item }}"
+        path: "/home/alainahebie_gmail_com/{{ item }}"
         state: directory
       loop:
         - project/compute-instances/src
@@ -32,11 +32,11 @@
         - project/compute-instances/test
         - utils
 
-    - name: Grant full permissions to 'aahebie_starclay_fr' for the 'project' directory and all within
+    - name: Grant full permissions to 'alainahebie_gmail_com' for the 'project' directory and all within
       file:
-        path: "/home/aahebie_starclay_fr/project"
-        owner: aahebie_starclay_fr
-        group: aahebie_starclay_fr
+        path: "/home/alainahebie_gmail_com/project"
+        owner: alainahebie_gmail_com
+        group: alainahebie_gmail_com
         mode: '0775'
         recurse: yes
         state: directory
@@ -44,30 +44,30 @@
     - name: Copy main.py to the remote machine
       copy:
         src: /mnt/c/Users/AHEBIE/Documents/GHUB/ethereum-airflow/compute-instances/main.py
-        dest: /home/aahebie_starclay_fr/project/compute-instances/main.py
+        dest: /home/alainahebie_gmail_com/project/compute-instances/main.py
       tags: [deploy, compute-instances]
 
     - name: Copy ethereum_data_collector.py to the remote machine
       copy:
         src: /mnt/c/Users/AHEBIE/Documents/GHUB/ethereum-airflow/compute-instances/src/ethereum_data_collector.py
-        dest: /home/aahebie_starclay_fr/project/compute-instances/src/ethereum_data_collector.py
+        dest: /home/alainahebie_gmail_com/project/compute-instances/src/ethereum_data_collector.py
       tags: [deploy, compute-instances]
 
     - name: Setup a Python virtual environment in 'evm' directory
-      command: python3 -m venv /home/aahebie_starclay_fr/evm
+      command: python3 -m venv /home/alainahebie_gmail_com/evm
       args:
-        creates: /home/aahebie_starclay_fr/evm/bin/activate
+        creates: /home/alainahebie_gmail_com/evm/bin/activate
       tags: [python, venv]
 
     - name: Copy requirements.txt to the remote machine
       copy:
         src: /mnt/c/Users/AHEBIE/Documents/GHUB/ethereum-airflow/requirements.txt
-        dest: /home/aahebie_starclay_fr/requirements.txt
+        dest: /home/alainahebie_gmail_com/requirements.txt
       tags: [python, venv]
 
     - name: Install Python packages within the virtual environment from requirements.txt
       pip:
-        requirements: /home/aahebie_starclay_fr/requirements.txt
-        virtualenv: /home/aahebie_starclay_fr/evm
+        requirements: /home/alainahebie_gmail_com/requirements.txt
+        virtualenv: /home/alainahebie_gmail_com/evm
         virtualenv_command: python3 -m venv
       tags: [python, venv]

@@ -1,0 +1,14 @@
+# profiles.yml
+
+my-bigquery-db:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: starclay-medley
+      dataset: SRC_ETH_DATA
+      threads: 1
+      keyfile: /usr/local/airflow/include/gcp/astro/include/gcp/starclay-medley-0a27887a60b6.json
+      timeout_seconds: 300
+      location: US
